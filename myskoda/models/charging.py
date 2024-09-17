@@ -1,10 +1,11 @@
 """Models for responses of api/v1/charging endpoint."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from mashumaro.mixins.json import DataClassJSONMixin
 
 from .common import ActiveState, EnabledState
 
@@ -43,39 +44,49 @@ class PlugUnlockMode(StrEnum):
     OFF = "OFF"
 
 
-class Settings(BaseModel):
-    available_charge_modes: list[ChargeMode] = Field(None, alias="availableChargeModes")
-    battery_support: EnabledState = Field(None, alias="batterySupport")
-    charging_care_mode: ActiveState = Field(None, alias="chargingCareMode")
-    max_charge_current_ac: MaxChargeCurrent = Field(None, alias="maxChargeCurrentAc")
-    preferred_charge_mode: ChargeMode = Field(None, alias="preferredChargeMode")
-    target_state_of_charge_in_percent: int = Field(None, alias="targetStateOfChargeInPercent")
-    auto_unlock_plug_when_charged: PlugUnlockMode = Field(None, alias="autoUnlockPlugWhenCharged")
+@dataclass
+class Settings:
+    available_charge_modes: list[ChargeMode] = field(metadata={"alias": "availableChargeModes"})
+    battery_support: EnabledState = field(metadata={"alias": "batterySupport"})
+    charging_care_mode: ActiveState = field(metadata={"alias": "chargingCareMode"})
+    max_charge_current_ac: MaxChargeCurrent = field(metadata={"alias": "maxChargeCurrentAc"})
+    preferred_charge_mode: ChargeMode = field(metadata={"alias": "preferredChargeMode"})
+    target_state_of_charge_in_percent: int = field(
+        metadata={"alias": "targetStateOfChargeInPercent"}
+    )
+    auto_unlock_plug_when_charged: PlugUnlockMode = field(
+        metadata={"alias": "autoUnlockPlugWhenCharged"}
+    )
 
 
-class Battery(BaseModel):
-    remaining_cruising_range_in_meters: int = Field(None, alias="remainingCruisingRangeInMeters")
-    state_of_charge_in_percent: int = Field(None, alias="stateOfChargeInPercent")
+@dataclass
+class Battery:
+    remaining_cruising_range_in_meters: int = field(
+        metadata={"alias": "remainingCruisingRangeInMeters"}
+    )
+    state_of_charge_in_percent: int = field(metadata={"alias": "stateOfChargeInPercent"})
 
 
-class Status(BaseModel):
+@dataclass
+class Status:
     battery: Battery
-    charge_power_in_kw: float | None = Field(None, alias="chargePowerInKw")
-    charging_rate_in_kilometers_per_hour: float = Field(
-        None, alias="chargingRateInKilometersPerHour"
+    charge_power_in_kw: float | None = field(metadata={"alias": "chargePowerInKw"})
+    charging_rate_in_kilometers_per_hour: float = field(
+        metadata={"alias": "chargingRateInKilometersPerHour"}
     )
-    remaining_time_to_fully_charged_in_minutes: int = Field(
-        None, alias="remainingTimeToFullyChargedInMinutes"
+    remaining_time_to_fully_charged_in_minutes: int = field(
+        metadata={"alias": "remainingTimeToFullyChargedInMinutes"}
     )
-    charge_type: ChargeType | None = Field(None, alias="chargeType")
     state: ChargingState
+    charge_type: ChargeType | None = field(metadata={"alias": "chargeType"}, default=None)
 
 
-class Charging(BaseModel):
+@dataclass
+class Charging(DataClassJSONMixin):
     """Information related to charging an EV."""
 
-    car_captured_timestamp: datetime = Field(None, alias="carCapturedTimestamp")
+    car_captured_timestamp: datetime = field(metadata={"alias": "carCapturedTimestamp"})
     errors: list[Any]
-    is_vehicle_in_saved_location: bool = Field(None, alias="isVehicleInSavedLocation")
+    is_vehicle_in_saved_location: bool = field(metadata={"alias": "isVehicleInSavedLocation"})
     settings: Settings
     status: Status | None

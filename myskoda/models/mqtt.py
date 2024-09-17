@@ -1,10 +1,23 @@
 """Models relaterd to the MQTT API."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
 from typing import Generic, TypeVar
 
-from pydantic import BaseModel, Field, validator
+from mashumaro import field_options
+from mashumaro.mixins.json import DataClassJSONMixin
+from mashumaro.types import SerializationStrategy
+
+
+class CoerceToInt(SerializationStrategy):
+    """Serialization strategy for coerce a field to an int."""
+
+    def serialize(self, value: str | None) -> int | None:
+        """Deserialize Any to int."""
+        if not value:
+            return None
+        return int(value)
 
 
 class OperationStatus(StrEnum):
@@ -60,27 +73,30 @@ class ServiceEventName(StrEnum):
     CHANGE_CHARGE_MODE = "change-charge-mode"
 
 
-class OperationRequest(BaseModel):
+@dataclass
+class OperationRequest(DataClassJSONMixin):
     version: int
-    trace_id: str = Field(None, alias="traceId")
-    request_id: str = Field(None, alias="requestId")
+    trace_id: str = field(metadata={"alias": "traceId"})
+    request_id: str = field(metadata={"alias": "requestId"})
     operation: OperationName
     status: OperationStatus
-    error_code: str = Field(None, alias="errorCode")
+    error_code: str = field(metadata={"alias": "errorCode"})
 
 
-class ServiceEventData(BaseModel):
-    user_id: str = Field(None, alias="userId")
+@dataclass
+class ServiceEventData:
+    user_id: str = field(metadata={"alias": "userId"})
     vin: str
 
 
 T = TypeVar("T", bound=ServiceEventData)
 
 
-class ServiceEvent(BaseModel, Generic[T]):
+@dataclass
+class ServiceEvent(DataClassJSONMixin, Generic[T]):
     version: int
-    trace_id: str = Field(None, alias="traceId")
-    timestamp: datetime = Field(None, alias="requestId")
+    trace_id: str = field(metadata={"alias": "traceId"})
+    timestamp: datetime = field(metadata={"alias": "requestId"})
     producer: str
     name: ServiceEventName
     data: T
@@ -104,27 +120,29 @@ class ServiceEventChargeMode(StrEnum):
     OFF = "off"
 
 
+@dataclass
 class ServiceEventChargingData(ServiceEventData):
     mode: ServiceEventChargeMode
     state: ServiceEventChargingState
-    soc: int
-    charged_range: str = Field(None, alias="chargedRange")
-    time_to_finish: str | None = Field(None, alias="timeToFinish")
+    soc: int = field(metadata=field_options(serialization_strategy=CoerceToInt))
+    charged_range: str = field(metadata={"alias": "chargedRange"})
+    time_to_finish: str | None = field(metadata={"alias": "timeToFinish"})
 
-    @validator("soc")
-    def _parse_soc(cls, value: str) -> int:  # noqa: N805
-        return int(value)
+    # @validator("soc")
+    # def _parse_soc(cls, value: str) -> int:  # noqa: N805
+    #     return int(value)
 
-    @validator("charged_range")
-    def _parse_charged_range(cls, value: str) -> int:  # noqa: N805
-        return int(value)
+    # @validator("charged_range")
+    # def _parse_charged_range(cls, value: str) -> int:  # noqa: N805
+    #     return int(value)
 
-    @validator("time_to_finish")
-    def _parse_time_to_finish(cls, value: str) -> int | None:  # noqa: N805
-        if value == "null":
-            return None
-        return int(value)
+    # @validator("time_to_finish")
+    # def _parse_time_to_finish(cls, value: str) -> int | None:  # noqa: N805
+    #     if value == "null":
+    #         return None
+    #     return int(value)
 
 
+@dataclass
 class ServiceEventCharging(ServiceEvent):
     data: ServiceEventChargingData

@@ -1,9 +1,10 @@
 """Models for responses of api/v2/garage/vehicles/{vin}."""
 
+from dataclasses import dataclass, field
 from datetime import date
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from mashumaro.mixins.json import DataClassJSONMixin
 
 
 class CapabilityId(StrEnum):
@@ -72,17 +73,20 @@ class CapabilityStatus(StrEnum):
     INSUFFICIENT_BATTERY_LEVEL = "INSUFFICIENT_BATTERY_LEVEL"
 
 
-class Capability(BaseModel):
+@dataclass
+class Capability:
     id: CapabilityId
     statuses: list[CapabilityStatus]
 
 
-class Capabilities(BaseModel):
+@dataclass
+class Capabilities:
     capabilities: list[Capability]
 
 
-class Battery(BaseModel):
-    capacity: int = Field(None, alias="capacityInKWh")
+@dataclass
+class Battery:
+    capacity: int = field(metadata={"alias": "capacityInKWh"})
 
 
 class BodyType(StrEnum):
@@ -94,54 +98,60 @@ class VehicleState(StrEnum):
     ACTIVATED = "ACTIVATED"
 
 
-class Engine(BaseModel):
-    power: int = Field(None, alias="powerInKW")
-    capacity_in_liters: float | None = Field(None, alias="capacityInLiters")
+@dataclass
+class Engine:
+    power: int = field(metadata={"alias": "powerInKW"})
+    type: str
+    capacity_in_liters: float | None = field(metadata={"alias": "capacityInLiters"}, default=None)
+
+
+@dataclass
+class Gearbox:
     type: str
 
 
-class Gearbox(BaseModel):
-    type: str
-
-
-class Specification(BaseModel):
+@dataclass
+class Specification:
     battery: Battery | None
     body: BodyType
     engine: Engine
-    manufacturing_date: date = Field(None, alias="manufacturingDate")
-    max_charging_power: int = Field(None, alias="maxChargingPowerInKW")
+    manufacturing_date: date = field(metadata={"alias": "manufacturingDate"})
+    max_charging_power: int = field(metadata={"alias": "maxChargingPowerInKW"})
     model: str
-    model_year: str = Field(None, alias="modelYear")
-    system_code: str = Field(None, alias="systemCode")
-    system_model_id: str = Field(None, alias="systemModelId")
+    model_year: str = field(metadata={"alias": "modelYear"})
+    system_code: str = field(metadata={"alias": "systemCode"})
+    system_model_id: str = field(metadata={"alias": "systemModelId"})
     title: str
-    trim_level: str = Field(None, alias="trimLevel")
+    trim_level: str = field(metadata={"alias": "trimLevel"})
 
 
-class ServicePartner(BaseModel):
-    id: str = Field(None, alias="servicePartnerId")
+@dataclass
+class ServicePartner:
+    id: str = field(metadata={"alias": "servicePartnerId"})
 
 
 class ErrorType(StrEnum):
     MISSING_RENDER = "MISSING_RENDER"
 
 
-class Error(BaseModel):
+@dataclass
+class Error:
     description: str
     type: ErrorType
 
 
-class Info(BaseModel):
+@dataclass
+class Info(DataClassJSONMixin):
     """Basic vehicle information."""
 
-    software_version: str = Field(None, alias="softwareVersion")
+    software_version: str = field(metadata={"alias": "softwareVersion"})
     state: VehicleState
     specification: Specification
     vin: str
     name: str
-    device_platform: str = Field(None, alias="devicePlatform")
-    service_partner: ServicePartner = Field(None, alias="servicePartner")
-    workshop_mode_enabled: bool = Field(None, alias="workshopModeEnabled")
+    device_platform: str = field(metadata={"alias": "devicePlatform"})
+    service_partner: ServicePartner = field(metadata={"alias": "servicePartner"})
+    workshop_mode_enabled: bool = field(metadata={"alias": "workshopModeEnabled"})
     capabilities: Capabilities
-    errors: list[Error] | None
-    license_plate: str = Field(None, alias="licensePlate")
+    license_plate: str = field(metadata={"alias": "licensePlate"})
+    errors: list[Error] | None = field(default_factory=list)

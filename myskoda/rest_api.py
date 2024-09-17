@@ -75,7 +75,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received basic info", vin)
-            return Info(**await response.json())
+            return Info.from_json(await response.text())
 
     async def get_charging(self, vin: str) -> Charging:
         """Retrieve information related to charging for the specified vehicle."""
@@ -84,7 +84,7 @@ class RestApi:
         ) as response:
             _LOGGER.debug("Received charging info")
             print(await response.json())
-            return Charging(**await response.json())
+            return Charging.from_json(await response.text())
 
     async def get_status(self, vin: str) -> Status:
         """Retrieve the current status for the specified vehicle."""
@@ -93,7 +93,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received status")
-            return Status(**await response.json())
+            return Status.from_json(await response.text())
 
     async def get_air_conditioning(self, vin: str) -> AirConditioning:
         """Retrieve the current air conditioning status for the specified vehicle."""
@@ -102,7 +102,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received air conditioning")
-            return AirConditioning(**await response.json())
+            return AirConditioning.from_json(await response.text())
 
     async def get_positions(self, vin: str) -> Positions:
         """Retrieve the current position for the specified vehicle."""
@@ -111,7 +111,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received position")
-            return Positions(**await response.json())
+            return Positions.from_json(await response.text())
 
     async def get_driving_range(self, vin: str) -> DrivingRange:
         """Retrieve estimated driving range for combustion vehicles."""
@@ -120,7 +120,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received driving range")
-            return DrivingRange(**await response.json())
+            return DrivingRange.from_json(await response.text())
 
     async def get_trip_statistics(self, vin: str) -> TripStatistics:
         """Retrieve statistics about past trips."""
@@ -129,7 +129,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received trip statistics")
-            return TripStatistics(**await response.json())
+            return TripStatistics.from_json(await response.text())
 
     async def get_maintenance(self, vin: str) -> Maintenance:
         """Retrieve maintenance report."""
@@ -138,7 +138,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received maintenance report")
-            return Maintenance(**await response.json())
+            return Maintenance.from_json(await response.text())
 
     async def get_health(self, vin: str) -> Health:
         """Retrieve health information for the specified vehicle."""
@@ -147,7 +147,7 @@ class RestApi:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received health")
-            return Health(**await response.json())
+            return Health.from_json(await response.text())
 
     async def get_user(self) -> User:
         """Retrieve user information about logged in user."""
@@ -155,8 +155,8 @@ class RestApi:
             f"{BASE_URL_SKODA}/api/v1/users",
             headers=await self._headers(),
         ) as response:
-            _LOGGER.debug("Received user")
-            return User(**await response.json())
+            _LOGGER.debug(f"Received user {await response.json()}")
+            return User.from_json(await response.text())
 
     async def list_vehicles(self) -> list[str]:
         """List all vehicles by their vins."""

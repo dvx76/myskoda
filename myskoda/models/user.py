@@ -1,9 +1,10 @@
 """User that is using the API."""
 
+from dataclasses import dataclass, field
 from datetime import date
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from mashumaro.mixins.json import DataClassJSONMixin
 
 
 class UserCapabilityId(StrEnum):
@@ -13,20 +14,22 @@ class UserCapabilityId(StrEnum):
     TEST_DRIVE = "TEST_DRIVE"
 
 
-class UserCapability(BaseModel):
+@dataclass
+class UserCapability:
     id: UserCapabilityId
 
 
-class User(BaseModel):
+@dataclass
+class User(DataClassJSONMixin):
     capabilities: list[UserCapability]
     country: str
-    date_of_birth: date = Field(None, alias="dateOfBirth")
     email: str
-    first_name: str = Field(None, alias="firstName")
+    first_name: str = field(metadata={"alias": "firstName"})
     id: str
-    last_name: str = Field(None, alias="lastName")
+    last_name: str = field(metadata={"alias": "lastName"})
     nickname: str
     phone: str
-    preferred_contact_channel: str = Field(None, alias="preferredContactChannel")
-    preferred_language: str = Field(None, alias="preferredLanguage")
-    profile_picture_url: str = Field(None, alias="profilePictureUrl")
+    preferred_contact_channel: str = field(metadata={"alias": "preferredContactChannel"})
+    preferred_language: str = field(metadata={"alias": "preferredLanguage"})
+    profile_picture_url: str = field(metadata={"alias": "profilePictureUrl"})
+    date_of_birth: date | None = field(metadata={"alias": "dateOfBirth"}, default=None)

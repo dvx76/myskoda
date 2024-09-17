@@ -1,8 +1,7 @@
 """Common models used in multiple responses."""
 
+from dataclasses import dataclass, field
 from enum import StrEnum
-
-from pydantic import BaseModel, Field
 
 
 class OnOffState(StrEnum):
@@ -47,18 +46,20 @@ class Side(StrEnum):
     RIGHT = "RIGHT"
 
 
-class Coordinates(BaseModel):
+@dataclass
+class Coordinates:
     latitude: float
     longitude: float
 
 
-class Address(BaseModel):
+@dataclass
+class Address:
     city: str
-    country: str | None
-    country_code: str = Field(None, alias="countryCode")
-    house_number: str | None = Field(None, alias="houseNumber")
+    country_code: str = field(metadata={"alias": "countryCode"})
     street: str
-    zip_code: str = Field(None, alias="zipCode")
+    zip_code: str = field(metadata={"alias": "zipCode"})
+    house_number: str | None = field(metadata={"alias": "houseNumber"}, default=None)
+    country: str | None = None
 
 
 class Weekday(StrEnum):

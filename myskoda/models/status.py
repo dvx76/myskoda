@@ -1,29 +1,33 @@
 """Models for responses of api/v2/vehicle-status/{vin}."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from mashumaro.mixins.json import DataClassJSONMixin
 
 from myskoda.models.common import DoorLockedState, OnOffState, OpenState
 
 
-class Detail(BaseModel):
+@dataclass
+class Detail:
     bonnet: OpenState
     sunroof: OpenState
     trunk: OpenState
 
 
-class Overall(BaseModel):
+@dataclass
+class Overall:
     doors: OpenState
-    doors_locked: DoorLockedState = Field(None, alias="doorsLocked")
+    doors_locked: DoorLockedState = field(metadata={"alias": "doorsLocked"})
     lights: OnOffState
     locked: DoorLockedState
     windows: OpenState
 
 
-class Status(BaseModel):
+@dataclass
+class Status(DataClassJSONMixin):
     """Current status information for a vehicle."""
 
-    car_captured_timestamp: datetime = Field(None, alias="carCapturedTimestamp")
+    car_captured_timestamp: datetime = field(metadata={"alias": "carCapturedTimestamp"})
     detail: Detail
     overall: Overall

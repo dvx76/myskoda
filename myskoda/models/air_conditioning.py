@@ -1,10 +1,11 @@
 """Models for responses of api/v2/air-conditioning endpoint."""
 
+from dataclasses import dataclass, field
 from datetime import datetime, time
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from mashumaro.mixins.json import DataClassJSONMixin
 
 from .common import ChargerLockedState, ConnectionState, OnOffState, Side, Weekday
 
@@ -18,45 +19,50 @@ class TimerMode(StrEnum):
     RECURRING = "RECURRING"
 
 
-class Timer(BaseModel):
+@dataclass
+class Timer:
     enabled: bool
     id: int
-    selected_days: list[Weekday] = Field(None, alias="selectedDays")
+    selected_days: list[Weekday] = field(metadata={"alias": "selectedDays"})
     time: time
     type: TimerMode
 
 
-class SeatHeating(BaseModel):
-    front_left: bool = Field(None, alias="frontLeft")
-    front_right: bool = Field(None, alias="frontRight")
+@dataclass
+class SeatHeating:
+    front_left: bool = field(metadata={"alias": "frontLeft"})
+    front_right: bool = field(metadata={"alias": "frontRight"})
 
 
-class TargetTemperature(BaseModel):
-    temperature_value: float = Field(None, alias="temperatureValue")
-    unit_in_car: TemperatureUnit = Field(None, alias="unitInCar")
+@dataclass
+class TargetTemperature:
+    temperature_value: float = field(metadata={"alias": "temperatureValue"})
+    unit_in_car: TemperatureUnit = field(metadata={"alias": "unitInCar"})
 
 
-class WindowHeatingState(BaseModel):
+@dataclass
+class WindowHeatingState:
     front: OnOffState
     rear: OnOffState
     unspecified: Any
 
 
-class AirConditioning(BaseModel):
+@dataclass
+class AirConditioning(DataClassJSONMixin):
     """Information related to air conditioning."""
 
-    air_conditioning_at_unlock: bool = Field(None, alias="airConditioningAtUnlock")
-    car_captured_timestamp: datetime = Field(None, alias="carCapturedTimestamp")
-    charger_connection_state: ConnectionState = Field(None, alias="chargerConnectionState")
-    charger_lock_state: ChargerLockedState = Field(None, alias="chargerLockState")
+    air_conditioning_at_unlock: bool = field(metadata={"alias": "airConditioningAtUnlock"})
+    car_captured_timestamp: datetime = field(metadata={"alias": "carCapturedTimestamp"})
+    charger_connection_state: ConnectionState = field(metadata={"alias": "chargerConnectionState"})
+    charger_lock_state: ChargerLockedState = field(metadata={"alias": "chargerLockState"})
     errors: list[Any]
-    estimated_date_time_to_reach_target_temperature: datetime = Field(
-        None, alias="estimatedDateTimeToReachTargetTemperature"
+    estimated_date_time_to_reach_target_temperature: datetime = field(
+        metadata={"alias": "estimatedDateTimeToReachTargetTemperature"}
     )
-    seat_heating_activated: SeatHeating = Field(None, alias="seatHeatingActivated")
+    seat_heating_activated: SeatHeating = field(metadata={"alias": "seatHeatingActivated"})
     state: OnOffState
-    steering_wheel_position: Side = Field(None, alias="steeringWheelPosition")
-    target_temperature: TargetTemperature | None = Field(None, alias="targetTemperature")
+    steering_wheel_position: Side = field(metadata={"alias": "steeringWheelPosition"})
+    target_temperature: TargetTemperature | None = field(metadata={"alias": "targetTemperature"})
     timers: list[Timer]
-    window_heating_enabled: bool = Field(None, alias="windowHeatingEnabled")
-    window_heating_state: WindowHeatingState = Field(None, alias="windowHeatingState")
+    window_heating_enabled: bool = field(metadata={"alias": "windowHeatingEnabled"})
+    window_heating_state: WindowHeatingState = field(metadata={"alias": "windowHeatingState"})
