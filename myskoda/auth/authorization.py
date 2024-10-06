@@ -96,7 +96,7 @@ class Authorization:
 
         params = {
             "client_id": CLIENT_ID,
-            "nonce": str(uuid.uuid4()),
+            "nonce": random_nonce(),
             "redirect_uri": "myskoda://redirect/login/",
             "response_type": "code id_token",
             # OpenID scopes. Can be found here: https://identity.vwgroup.io/.well-known/openid-configuration
@@ -152,6 +152,7 @@ class Authorization:
             data=form_data(),
             allow_redirects=False,
         ) as auth_response:
+            print(auth_response.headers.keys())
             location = auth_response.headers["Location"]
             while not location.startswith("myskoda://"):
                 async with self.session.get(location, allow_redirects=False) as response:
@@ -193,9 +194,7 @@ class Authorization:
         """
         # Generate a random string for the OAUTH2 PKCE challenge.
         # (https://www.oauth.com/oauth2-servers/pkce/authorization-request/)
-        verifier = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=16)  # noqa: S311
-        )
+        verifier = random_verifier()
 
         # Call the initial OIDC (OpenID Connect) authorization,
         # giving us the initial SSO information.
@@ -310,3 +309,11 @@ class NotAuthorizedError(Exception):
 
 class AuthorizationFailedError(Exception):
     """Failed to authorize."""
+
+
+def random_verifier() -> str:
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=16))  # noqa: S311
+
+
+def random_nonce() -> str:
+    return str(uuid.uuid4())
