@@ -7,12 +7,11 @@ from unittest.mock import patch
 import pytest
 from aioresponses import aioresponses
 
-
-@pytest.fixture(name="responses")
-def aioresponses_fixture() -> Generator[aioresponses, None, None]:
-    """Return aioresponses fixture."""
-    with aioresponses() as mocked_responses:
-        yield mocked_responses
+# @pytest.fixture(name="responses")
+# def aioresponses_fixture() -> Generator[aioresponses, None, None]:
+#     """Return aioresponses fixture."""
+#     with aioresponses() as mocked_responses:
+#         yield mocked_responses
 
 
 @pytest.fixture(name="nonce")

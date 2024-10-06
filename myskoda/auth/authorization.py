@@ -152,7 +152,7 @@ class Authorization:
             data=form_data(),
             allow_redirects=False,
         ) as auth_response:
-            print(auth_response.headers.keys())
+            print(auth_response.headers)
             location = auth_response.headers["Location"]
             while not location.startswith("myskoda://"):
                 async with self.session.get(location, allow_redirects=False) as response:
